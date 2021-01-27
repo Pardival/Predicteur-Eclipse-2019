@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Simulateur</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+	<!-- Titre -->
+	<center>
+		<h1> Smilateur de prédiction d'éclipse </h1>
+	</center>
+
+	<!-- -La scene permettant la modélisation de la simulation -->
+	<center>
+		<canvas width="1000" height="1000">
+			Le Simulateur devrait normalement s'afficher ... 
+			Essayer relancer le programme avec une version plus récente de votre navigateur
+			ou avec un autre navigateur. 
+		</canvas>
+	</center>
+
+	<!-- Permet la saisie de l'utilisateur -->
+	<center>
+		<h3> Entrer un nombre de lunaison </h3>
+
+		<input type="number" name="nombre" id ="nombre">
+		<br /> <br />
+		<button onclick="simuler()">Lancer la simulation</button>
+
+		<!--<h3>Résultat :</h3>-->
+	</center>
+
+	<script type="text/javascript">
+		/* simulateur.js 		06/10/2019 
+		 * Auteur : Biet Alexandre, Castre Romain, Cobelle Adrien, Dufour Kevin
+		 */
+
+		 /* Séléction de notre canvas et définition du contexte */
+		 var canvas = document.querySelector("canvas");			// Objet renfermant la balise canvas
+		 var ctx = canvas.getContext("2d"); 					// Le contexte de notre canvas est en 2d
+
+		 const ANGLE_COS = 30.67;								// type : int -> Contient l'angle de déplacement lors de chaque nouvelle lune a rajouter au cos
+		 const ANGLE_SIN = 30.67;								// type : int -> Contient l'angle de déplacement lors de chaque nouvelle lune a rajouter au sin
+
+		 var nbBonneNouvelleLune = 0;							// type : int -> Variable contenant le nombre de bonnes nouvelles lune
+		 var centreO = 500;
+		 var distance = 384;
+		 var tailleTerre = 12.74;
+		 var tailleLune = 3.47;
+
+		 var longeurDroite = 500;
+
+		/* Permet de déssiner un cercle sur le canvas 
+		 * x => type : int -> position x du centre du cercle
+		 * y => type : int -> position y du centre cerlce
+		 * couleur => type String -> couleur du cercle
+		 */
+		 function dessinerCercle(x, y, rayon, couleur) {
+
+		 	ctx.fillStyle = couleur;							// Indique la couleur pour nos dessins
+
+		 	ctx.beginPath();									// Indique que le dessin est possible
+		 	ctx.arc(x, y, rayon, 0, Math.PI * 2, false);		// Modélisation du cercle
+
+		 	ctx.fill(); 										// On attribue la coueur au cercle
+
+		 }
+
+		 /* Permet de déssiner une droite 
+		  * xd => type : int -> postion x du debut de la droite	
+		  * yd => type : int -> postion y du debut de la droite	
+		  * xf => type : int -> postion x de la fin de la droite	
+		  * xf => type : int -> postion x de lla fin de la droite	
+		  * couleur => type : String -> pour defiir la couleur de la droite	
+		  */
+		 function dessinerDroite(xd,yd,xf,yf,couleur) {
+		 	ctx.beginPath();
+
+		 	ctx.strokeStyle = couleur;
+
+		 	ctx.moveTo(xd,yd);		// On definie le premier point
+		 	ctx.lineTo(xf,yf);		// On definie le deuxieme point
+		 	ctx.stroke();			// On rend visible la droite
+		 }
+
+		 console.log(nbBonneNouvelleLune);
+
+		 /* Lance la simulation du programme */
+		 function simuler() {
+		 	var nbLunaison = document.getElementById("nombre").value;
+
+		 	/* Effacement du canvas afin de pouvoir redessiner */
+		 	ctx.clearRect(0,0,1000,1000);
+
+			 dessinerCercle(centreO, centreO, tailleTerre, "blue");		// Construction du cercle bleu
+
+			 /* Construction des droites permettant de voir ou se situe les endroit ou on peut avoir de bonne nouvelle lune */
+			 dessinerDroite(centreO, centreO, centreO + Math.cos(16.9 * Math.PI / 180) * longeurDroite, centreO + Math.sin(16.9 * Math.PI / 180) * longeurDroite, "pink");
+			 dessinerDroite(centreO, centreO, centreO + Math.cos(-16.9 * Math.PI / 180) * longeurDroite, centreO + Math.sin(-16.9 * Math.PI / 180) * longeurDroite, "pink");
+
+			 dessinerDroite(centreO, centreO, centreO + Math.cos((180 + 16.9) * Math.PI / 180) * longeurDroite, centreO + Math.sin((180 + 16.9) * Math.PI / 180) * longeurDroite, "pink");
+			 dessinerDroite(centreO, centreO, centreO + Math.cos((180 - 16.9) * Math.PI / 180) * longeurDroite, centreO + Math.sin((180 - 16.9) * Math.PI / 180) * longeurDroite, "pink");
+
+			 /* Construction de la droite des noeuds */
+			 dessinerDroite(0,500,1000,500,"white");
+
+			 /* permettra de contenir les cos et sin pour definir la position des nouelles lunes*/
+			 var c = 30.67;
+			 var s = 30.67; 
+
+			 /* Dessine les nouvelles lune sur la scene */
+			 for (var i = 0; i < nbLunaison; i++) {
+
+			 	var x = centreO;		// type : int -> Contient les coordonnées de bases pour le dessin
+			 	var y = centreO;		// type : int -> Contient les coordonnées de bases pour le dessin
+
+			 	x = x + Math.cos(-c * Math.PI / 180) * distance;		// Calcul de la position x de la nouvelle lune, ont multiplie * 100 rapport au cercle bleu (la terre)
+			 	y = y + Math.sin(-s * Math.PI / 180) * distance;		// Calcul de la position y de la nouvelle lune
+
+
+			 	/*
+			 	if ((x < 200 + Math.cos(-16.9 * Math.PI / 180) * 100 && 
+			 		 y < 200 + Math.sin(-16.9 * Math.PI / 180) * 100 &&  
+			 		 x > 200 + Math.cos(16.9 * Math.PI / 180) * 100 && 
+			 		 y > 200 + Math.sin(16.9 * Math.PI / 180) * 100)) {
+			 		nbBonneNouvelleLune ++;
+			 	} */
+
+			 	dessinerCercle(x,y,tailleLune,"yellow");	// Toute les nouvelles lunes sont de couleur jaune
+
+			 	/* On rajoute l'angle pour definir la position de la prochaine nouvelle lune */
+			 	c += ANGLE_COS; 
+			 	s += ANGLE_SIN;					
+			 }
+		 }
+
+		dessinerCercle(centreO, centreO, tailleTerre, "blue");		// Construction du cercle bleu
+
+		/* Construction des droites permettant de voir ou se situe les endroit ou on peut avoir de bonne nouvelle lune */
+		dessinerDroite(centreO, centreO, centreO + Math.cos(16.9 * Math.PI / 180) * longeurDroite, centreO + Math.sin(16.9 * Math.PI / 180) * longeurDroite, "red");
+		dessinerDroite(centreO, centreO, centreO + Math.cos(-16.9 * Math.PI / 180) * longeurDroite, centreO + Math.sin(-16.9 * Math.PI / 180) * longeurDroite, "red");
+
+		dessinerDroite(centreO, centreO, centreO + Math.cos((180 + 16.9) * Math.PI / 180) * longeurDroite, centreO + Math.sin((180 + 16.9) * Math.PI / 180) * longeurDroite, "red");
+		dessinerDroite(centreO, centreO, centreO + Math.cos((180 - 16.9) * Math.PI / 180) * longeurDroite, centreO + Math.sin((180 - 16.9) * Math.PI / 180) * longeurDroite, "red");
+
+		/* Construction de la droite des noeuds */
+		dessinerDroite(0,500,1000,500,"white");
+	</script>
+</body>
+</html>
